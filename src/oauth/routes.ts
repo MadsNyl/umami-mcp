@@ -24,10 +24,23 @@ export function createOAuthRoutes(db: Database, umamiClient: UmamiClient): Hono 
       issuer: baseUrl,
       authorization_endpoint: `${baseUrl}/oauth/authorize`,
       token_endpoint: `${baseUrl}/oauth/token`,
+      registration_endpoint: `${baseUrl}/oauth/register`,
       response_types_supported: ["code"],
       grant_types_supported: ["authorization_code"],
       code_challenge_methods_supported: ["S256"],
     });
+  });
+
+  oauth.post("/oauth/register", async (c) => {
+    const body = await c.req.json();
+    return c.json({
+      client_id: env.OAUTH_CLIENT_ID,
+      client_name: body.client_name || "MCP Client",
+      redirect_uris: body.redirect_uris || [],
+      grant_types: ["authorization_code"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "none",
+    }, 201);
   });
 
   oauth.get("/.well-known/oauth-protected-resource/mcp", (c) => {
