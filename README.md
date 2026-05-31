@@ -41,7 +41,7 @@ Umami is a great privacy-focused analytics platform, but querying it requires na
 1. **Clone and install:**
 
 ```bash
-git clone https://github.com/your-org/umami-mcp.git
+git clone https://github.com/MadsNyl/umami-mcp.git
 cd umami-mcp
 bun install
 ```
@@ -57,12 +57,19 @@ Required variables:
 
 | Variable | Description |
 |----------|-------------|
-| `UMAMI_URL` | Base URL of your Umami instance |
-| `MCP_SECRET` | Random 32+ character string for encryption |
-| `OAUTH_CLIENT_ID` | Client ID for the OAuth flow |
-| `OAUTH_REDIRECT_URI` | Redirect URI your MCP client will use |
+| `UMAMI_URL` | Base URL of your Umami instance (e.g. `https://analytics.example.com`) |
+| `MCP_SECRET` | Random 32+ character string for encryption. Generate with: `openssl rand -base64 32` |
+| `OAUTH_CLIENT_ID` | Client ID for the OAuth flow (can be any string, e.g. `umami-mcp`) |
+| `OAUTH_REDIRECT_URI` | Not used for validation in practice — MCP clients send their own redirect URI |
 
-See `.env.example` for all options including optional `SQLITE_PATH`, `SESSION_TTL_DAYS`, `JWT_REFRESH_INTERVAL_HOURS`, and `PORT`.
+Optional variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SQLITE_PATH` | `/data/sessions.db` | Path to SQLite database file |
+| `SESSION_TTL_DAYS` | `90` | How long sessions last before re-authentication |
+| `JWT_REFRESH_INTERVAL_HOURS` | `20` | How often the Umami JWT is refreshed in the background |
+| `PORT` | `3000` | HTTP server port |
 
 3. **Run:**
 
@@ -114,7 +121,7 @@ Restart Claude Desktop after saving. You'll be prompted to authenticate via the 
 ### Claude Code
 
 ```bash
-claude mcp add umami --transport http --url https://your-server.example.com/mcp
+claude mcp add umami --transport http https://your-server.example.com/mcp
 ```
 
 ### Cursor
@@ -208,7 +215,7 @@ bun run dev
 
 ## Deployment
 
-The server is designed to run as a single-instance service with persistent storage for SQLite. See the included `Dockerfile` and `railway.json` for container deployment.
+The server is designed to run as a single-instance service with persistent storage for SQLite. See the included `Dockerfile` for container deployment.
 
 Key requirements:
 - Persistent storage for SQLite (default path: `/data/sessions.db`, configurable via `SQLITE_PATH`)
@@ -220,8 +227,8 @@ Key requirements:
 1. Create a new service in your Railway project using this repo
 2. **Add a Volume (required, manual step):** Open the service → Command Palette (`⌘K`) → "Add Volume" → set mount path to `/data`. This cannot be automated via `railway.json` — Railway only supports volume creation through the dashboard or CLI (`railway volume add`).
 3. Add the required environment variables (see `.env.example`)
-4. Set `UMAMI_URL` to your Umami service's private network URL (e.g. `http://umami.railway.internal`)
-5. Deploy — the included `railway.json` handles build config, health checks, and restart policy automatically
+4. Set `UMAMI_URL` to your Umami service's private network URL (e.g. `http://umami.railway.internal:3000`). Note: internal URLs require the port and use `http://`, not `https://`.
+5. Deploy — the included `railway.json` handles build config and restart policy automatically
 
 **Why is the volume manual?** Railway's config-as-code (`railway.json`) only covers build and deploy settings. Volume attachment is a platform-level operation that must be done via the dashboard or CLI. Railway rejects the `VOLUME` Dockerfile instruction entirely (build will fail), which is why it's omitted from the Dockerfile. Without this volume, session data will be lost on every redeploy.
 
