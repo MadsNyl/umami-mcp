@@ -9,11 +9,17 @@ import type { UmamiClient } from "../umami/client.js";
 
 const codeToToken = new Map<string, string>();
 
+function getBaseUrl(c: { req: { url: string; header: (name: string) => string | undefined } }): string {
+  const url = new URL(c.req.url);
+  const proto = c.req.header("x-forwarded-proto") || url.protocol.replace(":", "");
+  return `${proto}://${url.host}`;
+}
+
 export function createOAuthRoutes(db: Database, umamiClient: UmamiClient): Hono {
   const oauth = new Hono();
 
   oauth.get("/.well-known/oauth-authorization-server", (c) => {
-    const baseUrl = new URL(c.req.url).origin;
+    const baseUrl = getBaseUrl(c);
     return c.json({
       issuer: baseUrl,
       authorization_endpoint: `${baseUrl}/oauth/authorize`,
@@ -25,7 +31,7 @@ export function createOAuthRoutes(db: Database, umamiClient: UmamiClient): Hono 
   });
 
   oauth.get("/.well-known/oauth-protected-resource/mcp", (c) => {
-    const baseUrl = new URL(c.req.url).origin;
+    const baseUrl = getBaseUrl(c);
     return c.json({
       resource: `${baseUrl}/mcp`,
       authorization_servers: [baseUrl],
