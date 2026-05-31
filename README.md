@@ -223,9 +223,11 @@ Key requirements:
 4. Set `UMAMI_URL` to your Umami service's private network URL (e.g. `http://umami.railway.internal`)
 5. Deploy — the included `railway.json` handles build config, health checks, and restart policy automatically
 
-**Why is the volume manual?** Railway's config-as-code (`railway.json`) only covers build and deploy settings. Volume attachment is a platform-level operation that must be done via the dashboard or CLI. The `VOLUME` directive in the Dockerfile is ignored by Railway — it mounts its own volume at the path you configure in service settings at container start time. Without this volume, session data will be lost on every redeploy.
+**Why is the volume manual?** Railway's config-as-code (`railway.json`) only covers build and deploy settings. Volume attachment is a platform-level operation that must be done via the dashboard or CLI. Railway rejects the `VOLUME` Dockerfile instruction entirely (build will fail), which is why it's omitted from the Dockerfile. Without this volume, session data will be lost on every redeploy.
 
 ### Docker (generic)
+
+The `VOLUME` instruction is omitted from the Dockerfile for Railway compatibility. Use `-v` to mount persistent storage:
 
 ```bash
 docker build -t umami-mcp .

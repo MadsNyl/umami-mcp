@@ -10,6 +10,5 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-VOLUME ["/data"]
 EXPOSE 3000
 CMD ["bun", "run", "dist/index.js"]
