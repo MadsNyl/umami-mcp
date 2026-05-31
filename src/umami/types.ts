@@ -34,11 +34,18 @@ export type UmamiWebsiteListResponse = z.infer<typeof UmamiWebsiteListResponseSc
 
 // Stats
 export const UmamiStatsSchema = z.object({
-  pageviews: z.object({ value: z.number(), prev: z.number().optional() }),
-  visitors: z.object({ value: z.number(), prev: z.number().optional() }),
-  visits: z.object({ value: z.number(), prev: z.number().optional() }),
-  bounces: z.object({ value: z.number(), prev: z.number().optional() }),
-  totaltime: z.object({ value: z.number(), prev: z.number().optional() }),
+  pageviews: z.number(),
+  visitors: z.number(),
+  visits: z.number(),
+  bounces: z.number(),
+  totaltime: z.number(),
+  comparison: z.object({
+    pageviews: z.number(),
+    visitors: z.number(),
+    visits: z.number(),
+    bounces: z.number(),
+    totaltime: z.number(),
+  }).optional(),
 });
 export type UmamiStats = z.infer<typeof UmamiStatsSchema>;
 
@@ -86,7 +93,18 @@ export type UmamiEventsResponse = z.infer<typeof UmamiEventsResponseSchema>;
 
 // Event stats
 export const UmamiEventStatsSchema = z.object({
-  events: z.object({ value: z.number(), prev: z.number().optional() }),
+  data: z.object({
+    events: z.number(),
+    visitors: z.number(),
+    visits: z.number(),
+    uniqueEvents: z.number(),
+    comparison: z.object({
+      events: z.number(),
+      visitors: z.number(),
+      visits: z.number(),
+      uniqueEvents: z.number(),
+    }).optional(),
+  }),
 });
 export type UmamiEventStats = z.infer<typeof UmamiEventStatsSchema>;
 
@@ -129,8 +147,11 @@ export type UmamiSessionsResponse = z.infer<typeof UmamiSessionsResponseSchema>;
 
 // Session stats
 export const UmamiSessionStatsSchema = z.object({
-  visitors: z.object({ value: z.number(), prev: z.number().optional() }),
-  visits: z.object({ value: z.number(), prev: z.number().optional() }),
+  pageviews: z.object({ value: z.number() }),
+  visitors: z.object({ value: z.number() }),
+  visits: z.object({ value: z.number() }),
+  countries: z.object({ value: z.number() }),
+  events: z.object({ value: z.number() }),
 });
 export type UmamiSessionStats = z.infer<typeof UmamiSessionStatsSchema>;
 
