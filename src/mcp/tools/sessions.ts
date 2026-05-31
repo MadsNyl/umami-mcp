@@ -1,0 +1,48 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { z } from "zod";
+import type { UmamiClient } from "../../umami/client.js";
+
+export function registerSessionsTools(
+  server: McpServer,
+  getJwt: () => string,
+  umamiClient: UmamiClient
+) {
+  server.registerTool(
+    "list_sessions",
+    {
+      title: "List Sessions",
+      description: "List sessions for a website over a time range",
+      inputSchema: z.object({
+        websiteId: z.string().describe("The website UUID"),
+        startAt: z.number().describe("Start of time range in milliseconds"),
+        endAt: z.number().describe("End of time range in milliseconds"),
+        page: z.number().optional().describe("Page number"),
+        pageSize: z.number().optional().describe("Number of results per page"),
+      }),
+    },
+    async (params): Promise<CallToolResult> => {
+      const { websiteId, ...rest } = params;
+      const result = await umamiClient.listSessions(getJwt(), websiteId, rest);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.registerTool(
+    "get_session_stats",
+    {
+      title: "Get Session Stats",
+      description: "Get aggregate session statistics for a website over a time range",
+      inputSchema: z.object({
+        websiteId: z.string().describe("The website UUID"),
+        startAt: z.number().describe("Start of time range in milliseconds"),
+        endAt: z.number().describe("End of time range in milliseconds"),
+      }),
+    },
+    async (params): Promise<CallToolResult> => {
+      const { websiteId, ...rest } = params;
+      const result = await umamiClient.getSessionStats(getJwt(), websiteId, rest);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+}
