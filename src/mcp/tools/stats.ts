@@ -77,7 +77,7 @@ export function registerStatsTools(
         type: z
           .string()
           .describe(
-            "Metric type (e.g. 'url', 'referrer', 'browser', 'os', 'device', 'country', 'event')"
+            "Metric type: 'path', 'entry', 'exit', 'title', 'query', 'referrer', 'channel', 'domain', 'country', 'region', 'city', 'browser', 'os', 'device', 'language', 'screen', 'event', 'hostname', 'tag', 'distinctId'"
           ),
         limit: z.number().optional().describe("Maximum number of results"),
         offset: z.number().optional().describe("Offset for pagination"),

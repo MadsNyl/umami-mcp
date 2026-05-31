@@ -72,16 +72,16 @@ export type UmamiMetric = z.infer<typeof UmamiMetricSchema>;
 
 // Events
 export const UmamiEventSchema = z.object({
-  eventName: z.string().optional(),
-  createdAt: z.string().optional(),
-  urlPath: z.string().optional(),
-  sessionId: z.string().optional(),
-  browser: z.string().optional(),
-  os: z.string().optional(),
-  device: z.string().optional(),
-  country: z.string().optional(),
-  region: z.string().optional(),
-  city: z.string().optional(),
+  eventName: z.string().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  urlPath: z.string().nullable().optional(),
+  sessionId: z.string().nullable().optional(),
+  browser: z.string().nullable().optional(),
+  os: z.string().nullable().optional(),
+  device: z.string().nullable().optional(),
+  country: z.string().nullable().optional(),
+  region: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
 });
 export const UmamiEventsResponseSchema = z.object({
   data: z.array(UmamiEventSchema),
