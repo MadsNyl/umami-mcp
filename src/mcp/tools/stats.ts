@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import type { UmamiClient } from "../../umami/client.js";
+import { dateToMs } from "../date.js";
 
 export function registerStatsTools(
   server: McpServer,
@@ -15,14 +16,18 @@ export function registerStatsTools(
       description: "Get aggregated stats for a website over a time range",
       inputSchema: z.object({
         websiteId: z.string().describe("The website UUID"),
-        startAt: z.number().describe("Start of time range in milliseconds (Unix timestamp)"),
-        endAt: z.number().describe("End of time range in milliseconds (Unix timestamp)"),
+        startAt: z.string().describe("Start date as ISO 8601 string (e.g. '2026-01-15' or '2026-01-15T08:00:00Z')"),
+        endAt: z.string().describe("End date as ISO 8601 string (e.g. '2026-02-15' or '2026-02-15T23:59:59Z')"),
         compare: z.string().optional().describe("Comparison period (e.g. 'previous')"),
       }),
     },
     async (params): Promise<CallToolResult> => {
-      const { websiteId, ...rest } = params;
-      const result = await umamiClient.getStats(getJwt(), websiteId, rest);
+      const { websiteId, startAt, endAt, ...rest } = params;
+      const result = await umamiClient.getStats(getJwt(), websiteId, {
+        startAt: dateToMs(startAt),
+        endAt: dateToMs(endAt),
+        ...rest,
+      });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );
@@ -34,8 +39,8 @@ export function registerStatsTools(
       description: "Get pageview and session counts over time for a website",
       inputSchema: z.object({
         websiteId: z.string().describe("The website UUID"),
-        startAt: z.number().describe("Start of time range in milliseconds"),
-        endAt: z.number().describe("End of time range in milliseconds"),
+        startAt: z.string().describe("Start date as ISO 8601 string (e.g. '2026-01-15')"),
+        endAt: z.string().describe("End date as ISO 8601 string (e.g. '2026-02-15')"),
         unit: z
           .enum(["minute", "hour", "day", "month", "year"])
           .describe("Time bucket granularity"),
@@ -43,8 +48,12 @@ export function registerStatsTools(
       }),
     },
     async (params): Promise<CallToolResult> => {
-      const { websiteId, ...rest } = params;
-      const result = await umamiClient.getPageviews(getJwt(), websiteId, rest);
+      const { websiteId, startAt, endAt, ...rest } = params;
+      const result = await umamiClient.getPageviews(getJwt(), websiteId, {
+        startAt: dateToMs(startAt),
+        endAt: dateToMs(endAt),
+        ...rest,
+      });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );
@@ -72,8 +81,8 @@ export function registerStatsTools(
         "Get ranked metrics for a website (e.g. top pages, browsers, countries, referrers)",
       inputSchema: z.object({
         websiteId: z.string().describe("The website UUID"),
-        startAt: z.number().describe("Start of time range in milliseconds"),
-        endAt: z.number().describe("End of time range in milliseconds"),
+        startAt: z.string().describe("Start date as ISO 8601 string (e.g. '2026-01-15')"),
+        endAt: z.string().describe("End date as ISO 8601 string (e.g. '2026-02-15')"),
         type: z
           .string()
           .describe(
@@ -84,8 +93,12 @@ export function registerStatsTools(
       }),
     },
     async (params): Promise<CallToolResult> => {
-      const { websiteId, ...rest } = params;
-      const result = await umamiClient.getMetrics(getJwt(), websiteId, rest);
+      const { websiteId, startAt, endAt, ...rest } = params;
+      const result = await umamiClient.getMetrics(getJwt(), websiteId, {
+        startAt: dateToMs(startAt),
+        endAt: dateToMs(endAt),
+        ...rest,
+      });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );

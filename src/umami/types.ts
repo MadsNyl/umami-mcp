@@ -58,7 +58,7 @@ export type UmamiPageviews = z.infer<typeof UmamiPageviewsSchema>;
 
 // Active visitors
 export const UmamiActiveVisitorsSchema = z.object({
-  x: z.number(),
+  visitors: z.number(),
 });
 export type UmamiActiveVisitors = z.infer<typeof UmamiActiveVisitorsSchema>;
 
